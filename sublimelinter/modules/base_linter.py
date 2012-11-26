@@ -294,7 +294,7 @@ class BaseLinter(object):
         return lines, errorUnderlines, violationUnderlines, warningUnderlines, errorMessages, violationMessages, warningMessages
 
     def get_mapped_executable(self, view, default):
-        map = view.settings().get('sublimelinter_executable_map')
+        map = view.settings().get('executable_map')
 
         if map:
             lang = self.language.lower()
