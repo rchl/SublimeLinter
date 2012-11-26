@@ -62,19 +62,19 @@ ALL_SETTINGS = [
     'perl_linter',
     'pyflakes_ignore',
     'pyflakes_ignore_import_*',
-    'sublimelinter',
-    'sublimelinter_delay',
-    'sublimelinter_disable',
-    'sublimelinter_executable_map',
-    'sublimelinter_fill_outlines',
-    'sublimelinter_gutter_marks',
-    'sublimelinter_gutter_marks_theme',
-    'sublimelinter_mark_style',
-    'sublimelinter_notes',
-    'sublimelinter_objj_check_ascii',
-    'sublimelinter_popup_errors_on_save',
-    'sublimelinter_syntax_map',
-    'sublimelinter_wrap_find',
+    'run',
+    'delay',
+    'disable',
+    'executable_map',
+    'fill_outlines',
+    'gutter_marks',
+    'gutter_marks_theme',
+    'mark_style',
+    'notes',
+    'objj_check_ascii',
+    'popup_errors_on_save',
+    'syntax_map',
+    'wrap_find',
 ]
 
 
@@ -94,7 +94,7 @@ def get_delay(t, view):
 
     # If the user specifies a delay greater than the built in delay,
     # figure they only want to see marks when idle.
-    minDelay = int(view.settings().get('sublimelinter_delay', 0) * 1000)
+    minDelay = int(view.settings().get('delay', 0) * 1000)
 
     if minDelay > delay[1]:
         erase_lint_marks(view)
@@ -149,14 +149,14 @@ def run_once(linter, view, **kwargs):
 
     add_lint_marks(view, lines, error_underlines, violation_underlines, warning_underlines)
 
-    if view.settings().get('sublimelinter_notes'):
+    if view.settings().get('notes'):
         highlight_notes(view)
 
     update_statusbar(view)
     end = time.time()
     TIMES[vid] = (end - start) * 1000  # Keep how long it took to lint
 
-    if kwargs.get('event', None) == 'on_post_save' and view.settings().get('sublimelinter_popup_errors_on_save'):
+    if kwargs.get('event', None) == 'on_post_save' and view.settings().get('popup_errors_on_save'):
         popup_error_list(view)
 
 
@@ -222,16 +222,16 @@ def add_lint_marks(view, lines, error_underlines, violation_underlines, warning_
             view.add_regions('lint-underline-' + type_name, underlines, 'sublimelinter.underline.' + type_name, flags=sublime.DRAW_EMPTY_AS_OVERWRITE)
 
     if lines:
-        outline_style = view.settings().get('sublimelinter_mark_style', 'outline')
+        outline_style = view.settings().get('mark_style', 'outline')
 
         # This test is for the legacy "fill" setting; it will be removed
         # in a future version (likely v1.7).
-        if view.settings().get('sublimelinter_fill_outlines', False):
+        if view.settings().get('fill_outlines', False):
             outline_style = 'fill'
 
-        gutter_mark_enabled = True if view.settings().get('sublimelinter_gutter_marks', False) else False
+        gutter_mark_enabled = True if view.settings().get('gutter_marks', False) else False
 
-        gutter_mark_theme = view.settings().get('sublimelinter_gutter_marks_theme', 'simple')
+        gutter_mark_theme = view.settings().get('gutter_marks_theme', 'simple')
 
         outlines = {'warning': [], 'violation': [], 'illegal': []}
 
@@ -368,7 +368,7 @@ def select_linter(view, ignore_disabled=False):
     lc_syntax = syntax.lower()
     language = None
     linter = None
-    syntaxMap = view.settings().get('sublimelinter_syntax_map', {})
+    syntaxMap = view.settings().get('syntax_map', {})
 
     if syntax in syntaxMap:
         language = syntaxMap.get(syntax, '').lower()
@@ -381,7 +381,7 @@ def select_linter(view, ignore_disabled=False):
         if ignore_disabled:
             disabled = []
         else:
-            disabled = view.settings().get('sublimelinter_disable', [])
+            disabled = view.settings().get('disable', [])
 
         if language not in disabled:
             linter = LINTERS.get(language)
@@ -440,7 +440,7 @@ def queue_linter(linter, view, timeout=-1, preemptive=False, event=None):
         erase_lint_marks(view)  # may have changed file type and left marks behind
 
         # No point in queuing anything if no linters will run
-        if not view.settings().get('sublimelinter_notes'):
+        if not view.settings().get('notes'):
             return
 
     if preemptive:
@@ -658,9 +658,6 @@ def reload_settings(view):
         if settings.get(setting) is not None:
             view.settings().set(setting, settings.get(setting))
 
-    if view.settings().get('sublimelinter') is not None:
-        view.settings().set('sublimelinter', True)
-
 
 class LintCommand(sublime_plugin.TextCommand):
     '''command to interact with linters'''
@@ -700,22 +697,22 @@ class LintCommand(sublime_plugin.TextCommand):
 
     def on(self):
         '''Turns background linting on.'''
-        self.view.settings().set('sublimelinter', True)
+        self.view.settings().set('run', True)
         queue_linter(select_linter(self.view), self.view, preemptive=True)
 
     def enable_load_save(self):
         '''Turns load-save linting on.'''
-        self.view.settings().set('sublimelinter', 'load-save')
+        self.view.settings().set('run', 'load-save')
         erase_lint_marks(self.view)
 
     def enable_save_only(self):
         '''Turns save-only linting on.'''
-        self.view.settings().set('sublimelinter', 'save-only')
+        self.view.settings().set('run', 'save-only')
         erase_lint_marks(self.view)
 
     def off(self):
         '''Turns background linting off.'''
-        self.view.settings().set('sublimelinter', False)
+        self.view.settings().set('run', False)
         erase_lint_marks(self.view)
 
     def _run(self, name):
@@ -737,7 +734,7 @@ class BackgroundLinter(sublime_plugin.EventListener):
         if view.is_scratch():
             return
 
-        if view.settings().get('sublimelinter') is not True:
+        if view.settings().get('run') is not True:
             erase_lint_marks(view)
             return
 
@@ -756,20 +753,20 @@ class BackgroundLinter(sublime_plugin.EventListener):
     def on_load(self, view):
         reload_settings(view)
 
-        sublimelinter_setting = view.settings().get('sublimelinter')
+        run = view.settings().get('run')
 
-        if view.is_scratch() or sublimelinter_setting is False or sublimelinter_setting == 'save-only':
+        if view.is_scratch() or run is False or run == 'save-only':
             return
 
         queue_linter(select_linter(view), view, event='on_load')
 
     def on_post_save(self, view):
-        sublimelinter_setting = view.settings().get('sublimelinter')
+        run = view.settings().get('run')
 
-        if sublimelinter_setting == None:
+        if run is None:
             reload_settings(view)
 
-        if view.is_scratch() or sublimelinter_setting is False:
+        if view.is_scratch() or run is False:
             return
 
         reload_view_module(view)
@@ -828,7 +825,7 @@ class FindLintErrorCommand(sublime_plugin.TextCommand):
         # If there is only one error line and the cursor is in that line, we cannot move.
         # Otherwise wrap to the first/last error line unless settings disallow that.
         if regionToSelect is None and (len(regions) > 1 or not regions[0].contains(point)):
-            if self.view.settings().get('sublimelinter_wrap_find', True):
+            if self.view.settings().get('wrap_find', True):
                 regionToSelect = regions[0]
 
         if regionToSelect is not None:
@@ -843,7 +840,7 @@ class FindNextLintErrorCommand(FindLintErrorCommand):
     def run(self, edit, **args):
         '''
         Move the cursor to the next lint error in the current view.
-        The search will wrap to the top unless the sublimelinter_wrap_find
+        The search will wrap to the top unless the wrap_find
         setting is set to false.
         '''
         self.find_lint_error(forward=True)
@@ -853,7 +850,7 @@ class FindPreviousLintErrorCommand(FindLintErrorCommand):
     def run(self, edit, **args):
         '''
         Move the cursor to the previous lint error in the current view.
-        The search will wrap to the bottom unless the sublimelinter_wrap_find
+        The search will wrap to the bottom unless the wrap_find
         setting is set to false.
         '''
         self.find_lint_error(forward=False)
@@ -943,7 +940,7 @@ class SublimelinterLintCommand(SublimelinterCommand):
         if enabled:
             view = self.window.active_view()
 
-            if view and view.settings().get('sublimelinter') is True:
+            if view and view.settings().get('run') is True:
                 return False
 
         return enabled
@@ -961,7 +958,7 @@ class SublimelinterEnableLoadSaveCommand(SublimelinterCommand):
         if enabled:
             view = self.window.active_view()
 
-            if view and view.settings().get('sublimelinter') == 'load-save':
+            if view and view.settings().get('run') == 'load-save':
                 return False
 
         return enabled
@@ -974,7 +971,7 @@ class SublimelinterEnableSaveOnlyCommand(SublimelinterCommand):
         if enabled:
             view = self.window.active_view()
 
-            if view and view.settings().get('sublimelinter') == 'save-only':
+            if view and view.settings().get('run') == 'save-only':
                 return False
 
         return enabled
@@ -987,7 +984,7 @@ class SublimelinterDisableCommand(SublimelinterCommand):
         if enabled:
             view = self.window.active_view()
 
-            if view and view.settings().get('sublimelinter') is False:
+            if view and view.settings().get('run') is False:
                 return False
 
         return enabled

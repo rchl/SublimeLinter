@@ -10,7 +10,7 @@
         "load-save" - Linting occurs only when a file is loaded and saved.
         "save-only" - Linting occurs only when a file is saved.
     */
-    "sublimelinter": true,
+    "run": true,
 
     /*
         Maps language names **as listed at the beginning of the README** (but all lowercase)
@@ -24,14 +24,14 @@
 
         This is the effective default map; your mappings may override these.
 
-        "sublimelinter_executable_map":
+        "executable_map":
         {
             "perl": "perl",
             "php": "php",
             "ruby": "ruby"
         },
     */
-    "sublimelinter_executable_map":
+    "executable_map":
     {
     },
 
@@ -43,7 +43,7 @@
         is the linter name **as listed in the README** (all lowercase)
         that the syntax maps to.
     */
-    "sublimelinter_syntax_map":
+    "syntax_map":
     {
         "Python Django": "pylint",
         "Ruby on Rails": "ruby",
@@ -51,7 +51,7 @@
     },
 
     // An array of linter names to disable. Names should be lowercase.
-    "sublimelinter_disable":
+    "disable":
     [
     ],
 
@@ -63,28 +63,28 @@
         errors are erased when the file is modified, since the assumption is
         you don't want to see errors while you type.
     */
-    "sublimelinter_delay": 2,
+    "delay": 2,
 
     /*
         Selects the way the lines with errors or warnings are marked; "outline" draws
         outline boxes around the lines, "fill" fills the lines with the outline color,
         and "none" (default) disables all outline styles.
     */
-    "sublimelinter_mark_style": "none",
+    "mark_style": "none",
 
     /*
         If true, lines with errors or warnings will be filled in with the
         outline color.
 
         This setting is DEPRECATED and will be ignored in future
-        versions. Use "sublimelinter_mark_style" instead. For backwards
-        compatibility reasons, this setting overrides "sublimelinter_mark_style"
+        versions. Use "mark_style" instead. For backwards
+        compatibility reasons, this setting overrides "mark_style"
         if that one is set to "outline", but has no effect if it's set to "none".
     */
-    "sublimelinter_fill_outlines": false,
+    "fill_outlines": false,
 
     // If true, lines with errors or warnings will have a gutter mark.
-    "sublimelinter_gutter_marks": true,
+    "gutter_marks": true,
 
     /*
         Choose the theme for gutter marks; available built-in options are:
@@ -98,13 +98,13 @@
         "../User/my-awesome-theme-warning.png"
         These images should all be approximately 32x32px.
     */
-    "sublimelinter_gutter_marks_theme": "simple",
+    "gutter_marks_theme": "simple",
 
     // If true, the find next/previous error commands will wrap.
-    "sublimelinter_wrap_find": true,
+    "wrap_find": true,
 
     // If true, when the file is saved any errors will appear in a popup list
-    "sublimelinter_popup_errors_on_save": false,
+    "popup_errors_on_save": false,
 
     // JavaScript linter: "gjslint" to use the closure javascript linter (if available),
     // or either "jshint" or "jslint" to use a built in linter.
@@ -224,10 +224,10 @@
     "perl_linter": "perlcritic",
 
     // Objective-J: if true, non-ascii characters are flagged as an error.
-    "sublimelinter_objj_check_ascii": false,
+    "objj_check_ascii": false,
 
     // Set to true to highlight annotations
-    "sublimelinter_notes": false,
+    "notes": false,
 
     // The set of annotation phrases to highlight
     "annotations": ["TODO", "README", "FIXME"]

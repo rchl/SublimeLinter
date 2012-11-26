@@ -134,16 +134,16 @@ Following are notes specific to individual linters that you should be aware of:
 
 * **C/C++** - The default C/C++ linter is [cppcheck](http://cppcheck.sourceforge.net/), however Google's [cpplint.py](http://google-styleguide.googlecode.com/svn/trunk/cpplint/) is also supported.
 
-  To swap `cppcheck` out for `cpplint.py` you will need to adjust `sublimelinter_syntax_map` and possibly `sublimelinter_executable_map` also. First change the _linter language_ for `C` and `C++` to `c_cpplint` via `sublimelinter_syntax_map`. If `cpplint.py` is not on your system `PATH`, then add an entry for `c_cpplint` into `sublimelinter_executable_map` with the path to the file. As usual add these adjustments to the SublimeLinter **User Settings** file. An example:
+  To swap `cppcheck` out for `cpplint.py` you will need to adjust `syntax_map` and possibly `executable_map` also. First change the _linter language_ for `C` and `C++` to `c_cpplint` via `syntax_map`. If `cpplint.py` is not on your system `PATH`, then add an entry for `c_cpplint` into `executable_map` with the path to the file. As usual add these adjustments to the SublimeLinter **User Settings** file. An example:
 
-      "sublimelinter_syntax_map":
+      "syntax_map":
       {
         "Python Django": "python",
         "Ruby on Rails": "ruby",
         "C++": "c_cpplint",
         "C": "c_cpplint"
       },
-      "sublimelinter_executable_map":
+      "executable_map":
       {
         "c_cpplint": "/Users/[my username]/Desktop/cpplint.py"
       }
@@ -166,7 +166,7 @@ Following are notes specific to individual linters that you should be aware of:
 
 * **Perl** - Due to a vulnerability (issue [#77](https://github.com/SublimeLinter/SublimeLinter/issues/77)) with the Perl linter, Perl syntax checking is no longer enabled by default. The default linter for Perl has been replaced by Perl::Critic. The standard Perl syntax checker can still be invoked by switching the "perl_linter" setting to "perl".
 
-* **Ruby** - If you are using rvm or rbenv, you will probably have to specify the full path to the ruby you are using in the "sublimelinter_executable_map" setting. See "Configuring" below for more info.
+* **Ruby** - If you are using rvm or rbenv, you will probably have to specify the full path to the ruby you are using in the "executable_map" setting. See "Configuring" below for more info.
 
 ### Per-project settings
 SublimeLinter supports per-project/per-language settings. This is useful if a linter requires path configuration on a per-project basis. To edit your project settings, select the menu item `Project->Edit Project`. If there is no "settings" object at the top level, add one and then add a "SublimeLinter" sub-object, like this:
@@ -250,7 +250,7 @@ or define separate substyles for one or more types to color them differently.
 If you want to make the offending lines glaringly obvious (perhaps for those
 who tend to ignore lint errors), you can set the user setting:
 
-    "sublimelinter_mark_style": "fill"
+    "mark_style": "fill"
 
 When this is set true, lines that have errors will be colored with the background
 and foreground color of the "sublime.outline.<type>" theme style. Unless you have defined
@@ -259,11 +259,11 @@ those styles, this setting should be left as "outline".
 You may want to disable drawing of outline boxes entirely. If so, change
 using the user setting to:
 
-    "sublimelinter_mark_style": "none"
+    "mark_style": "none"
 
 You may also mark lines with errors by putting an "x" in the gutter with the user setting:
 
-    "sublimelinter_gutter_marks": true
+    "gutter_marks": true
 
 To customize the colors used for highlighting errors and user notes, add the following
 to your theme (adapting the color to your liking):
@@ -353,6 +353,53 @@ to your theme (adapting the color to your liking):
             <string>#FF0000</string>
         </dict>
     </dict>
+
+Using
+-----
+SublimeLinter runs in one of three modes, which is determined by the "sublimelinter" user setting:
+
+* **Background mode (the default)** - When the "sublimelinter" setting is true, linting is performed in the background as you modify a file (if the relevant linter supports it). If you like instant feedback, this is the best way to use SublimeLinter. If you want feedback, but not instantly, you can try another mode or set a minimum queue delay with the "delay" setting, so that the linter will only run after a certain amount of idle time.
+* **Load-save mode** - When the "sublimelinter" setting is "load-save", linting is performed only when a file is loaded and after saving. Errors are cleared as soon as the file is modified.
+* **Save-only mode** - When the "sublimelinter" setting is "save-only", linting is performed only after a file is saved. Errors are cleared as soon as the file is modified.
+* **On demand mode** - When the "sublimelinter" setting is false, linting is performed only when initiated by you. Use the `Control+Command+L` (OS X) or `Control+Alt+L` (Linux/Windows) key equivalent or the Command Palette to lint the current file. If the current file has no associated linter, the command will not be available.
+
+Within a file whose language/syntax is supported by SublimeLinter, you can control SublimeLinter via the Command Palette (`Command+Shift+P` on OS X, `Control+Shift+P` on Linux/Windows). The available commands are:
+
+* **SublimeLinter: Lint Current File** - Lints the current file, highlights any errors and displays how many errors were found.
+* **SublimeLinter: Show Error List** - Lints the current file, highlights any errors and displays a quick panel with any errors that are found. Selecting an item from the quick panel jumps to that line.
+* **SublimeLinter: Background Linting** - Enables background linting mode for the current view and lints it.
+* **SublimeLinter: Disable Linting** - Disables linting mode for the current view and clears all lint errors.
+* **SublimeLinter: Load-Save Linting** - Enables load-save linting mode for the current view and clears all lint errors.
+* **SublimeLinter: Save-Only Linting** - Enables save-only linting mode for the current view and clears all lint errors.
+* **SublimeLinter: Reset** - Clears all lint errors and sets the linting mode to the value in the SublimeLinter.sublime-settings file.
+
+Depending on the file and the current state of background enabling, some of the commands will not be available.
+
+When an error is highlighted by the linter, putting the cursor on the offending line will result in the error message being displayed on the status bar.
+
+If you want to be shown a popup list of all errors whenever a file is saved, modify the user setting:
+
+    "popup_errors_on_save": true
+
+If there are errors in the file, a quick panel will appear which shows the error message, line number and source code for each error. The starting location of all errors on the line are marked with "^". Selecting an error in the quick panel jumps directly to the location of the first error on that line.
+
+While editing a file, you can quickly move to the next/previous lint error with the following key equivalents:
+
+* **OS X**:
+
+        next: Control+Command+E
+        prev: Control+Command+Shift+E
+
+* **Linux, Windows**:
+
+        next: Control+Alt+E
+        prev: Control+Alt+Shift+E
+
+By default the search will wrap. You can turn wrapping off with the user setting:
+
+    "wrap_find": false
+
+Please note: these key commands may conflict with other important cmds (such as generating the € character - this was discussed in issue [#182](https://github.com/SublimeLinter/SublimeLinter/issues/182)). If these controls are problematic, you may always adjust your settings by copying the defaults stored in `Preferences->Package Settings->SublimeLinter->Key Bindings - Default` into `Preferences->Key Bindings - User` and then modifying the values appropriately.
 
 Troubleshooting
 ---------------
