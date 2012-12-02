@@ -634,6 +634,8 @@ def reload_settings(view):
     for setting in ALL_SETTINGS:
         if settings.get(setting) != None:
             view.settings().set(setting, settings.get(setting))
+        if view.settings().has('sublimelinter_%s' % setting):
+            view.settings().set(setting, view.settings().get('sublimelinter_%s' % setting))
 
     if view.settings().get('run') == None:
         view.settings().set('run', True)

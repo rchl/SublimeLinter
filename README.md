@@ -113,7 +113,7 @@ Following are notes specific to individual linters that you should be aware of:
 * **Ruby** - If you are using rvm or rbenv, you will probably have to specify the full path to the ruby you are using in the "executable_map" setting. See "Configuring" below for more info.
 
 ### Per-project settings
-SublimeLinter supports per-project/per-language settings. This is useful if a linter requires path configuration on a per-project basis. To edit your project settings, select the menu item `Project->Edit Project`. If there is no "settings" object at the top level, add one and then add a "SublimeLinter" sub-object, like this:
+SublimeLinter supports per-project/per-language settings. This is useful if a linter requires path configuration on a per-project basis. To edit your project settings, select the menu item `Project->Edit Project`. If there is no "settings" object at the top level, add one and then override any setting defined in the default configuration file. Do note that the key used in the default configuration file must be prefixed by "sublimelinter_". For example, to override the "run" setting, add a "sublimelinter_run" key in the "settings" object, like so:
 
     {
         "folders":
@@ -124,13 +124,28 @@ SublimeLinter supports per-project/per-language settings. This is useful if a li
         ],
         "settings":
         {
-            "SublimeLinter":
+            "sublimelinter_run": false
+        }
+    }
+
+In the project settings you can also specify language specific settings by creating a "sublimelinter_languages" sub-object, like this:
+
+    {
+        "folders":
+        [
+            {
+                "path": "/Users/aparajita/Projects/foo/src"
+            }
+        ],
+        "settings":
+        {
+            "sublimelinter_languages":
             {
             }
         }
     }
 
-Within the "SublimeLinter" object, you can add a settings object for each language. The language name must match the language item in the linter's CONFIG object, which can be found in the linter's source file in the SublimeLinter/sublimelinter/modules folder. Each language can have two settings:
+Within the "sublimelinter_languages" object, you can add a settings object for each language. The language name must match the language item in the linter's CONFIG object, which can be found in the linter's source file in the SublimeLinter/sublimelinter/modules folder. Each language can have two settings:
 
 * "working_directory" - If present and a valid absolute directory path, the working directory is set to this path before the linter executes. This is useful if you are providing linter arguments that contain paths and you want to use working directory-relative paths instead of absolute paths.
 * "lint_args" - If present, it must be a sequence of string arguments to pass to the linter. If your linter expects a filename as an argument, use the argument "{filename}" as a placeholder. Note that if you provide this item, you are responsible for passing **all** required arguments to the linter.
@@ -146,7 +161,7 @@ For example, let's say we are editing a Java project and want to use the "java" 
         ],
         "settings":
         {
-            "SublimeLinter":
+            "sublimelinter_languages":
             {
                 "Java":
                 {
