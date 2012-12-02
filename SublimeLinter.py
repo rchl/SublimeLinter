@@ -651,12 +651,15 @@ def reload_settings(view):
     '''Restores user settings.'''
     settings_name = 'SublimeLinter'
     settings = sublime.load_settings(settings_name + '.sublime-settings')
+    view_settings = view.settings()
     settings.clear_on_change(settings_name)
     settings.add_on_change(settings_name, settings_changed)
 
     for setting in ALL_SETTINGS:
         if settings.get(setting) is not None:
-            view.settings().set(setting, settings.get(setting))
+            view_settings.set(setting, settings.get(setting))
+        if view_settings.has('sublimelinter_%s' % setting):
+            view_settings.set(setting, view_settings.get('sublimelinter_%s' % setting))
 
 
 class LintCommand(sublime_plugin.TextCommand):
