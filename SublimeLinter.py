@@ -742,15 +742,16 @@ class BackgroundLinter(sublime_plugin.EventListener):
         queue_linter(linter, view)
 
     def on_load(self, view):
-        # When loading a file, only linter the currently active one.
+        # When loading a file, only lint the currently active one.
         # Otherwise starting SublimeText with many files open would be slow.
-        if view != sublime.active_window().active_view():
-            return
-
-        if view.is_scratch() or view.settings().get('sublimelinter') == False or view.settings().get('sublimelinter') == 'save-only':
+        if view != sublime.active_window().active_view() or view.is_scratch():
             return
 
         reload_settings(view)
+
+        if view.settings().get('sublimelinter') == False or view.settings().get('sublimelinter') == 'save-only':
+            return
+
         queue_linter(select_linter(view), view, event='on_load')
 
     def on_post_save(self, view):
