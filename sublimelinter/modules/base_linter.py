@@ -6,6 +6,7 @@ import os.path
 import json
 import re
 import subprocess
+import sys
 
 import sublime
 
@@ -141,8 +142,12 @@ class BaseLinter(object):
         try:
             args = [self.executable]
             args.extend(self.test_existence_args)
-            subprocess.Popen(args, startupinfo=self.get_startupinfo(),
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
+            use_shell = True if sys.platform == 'win32' else False
+            subprocess.Popen(args,
+                             startupinfo=self.get_startupinfo(),
+                             shell=use_shell,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT).communicate()
         except OSError:
             return (False, '"{0}" cannot be found'.format(self.executable))
 
@@ -153,7 +158,7 @@ class BaseLinter(object):
             return self.get_lint_args(view, code, filename) or []
         else:
             lintArgs = self.lint_args or []
-            settings = view.settings().get('SublimeLinter', {}).get(self.language, {})
+            settings = view.settings().get('sublimelinter_languages', {}).get(self.language, {})
 
             if settings:
                 args = settings.get('lint_args', [])
@@ -198,11 +203,13 @@ class BaseLinter(object):
             return ''
 
         try:
+            use_shell = True if sys.platform == 'win32' else False
             process = subprocess.Popen(args,
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT,
-                                       startupinfo=self.get_startupinfo())
+                                       startupinfo=self.get_startupinfo(),
+                                       shell=use_shell)
             process.stdin.write(code.encode('utf-8'))
             result = process.communicate()[0]
         finally:
@@ -316,7 +323,10 @@ class BaseLinter(object):
 
     def execute_get_output(self, args):
         try:
-            return subprocess.Popen(args, self.get_startupinfo()).communicate()[0]
+            use_shell = True if sys.platform == 'win32' else False
+            return subprocess.Popen(args,
+                                    startupinfo=self.get_startupinfo(),
+                                    shell=use_shell).communicate()[0]
         except:
             return ''
 
