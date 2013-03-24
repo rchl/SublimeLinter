@@ -34,8 +34,8 @@ class Loader(object):
         self.basepath = 'sublimelinter/modules'
         self.linters = linters
         self.modpath = 'SublimeLinter.sublimelinter.modules'
-        # Temporarily disable objective-j & python
-        self.ignored = ('__init__', 'base_linter', 'objective-j', 'python')
+        # Temporarily disable objective-j
+        self.ignored = ('__init__', 'base_linter', 'objective-j')
         self.fix_path()
         self.load_all()
 
