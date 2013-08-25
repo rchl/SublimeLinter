@@ -1,8 +1,11 @@
-"""
-Provide the Reporter class.
-"""
+# (c) 2005-2012 Divmod, Inc.
+# See LICENSE file for details
 
 import sys
+try:
+    u = unicode
+except NameError:
+    u = str
 
 
 class Reporter(object):
@@ -33,7 +36,7 @@ class Reporter(object):
         @param msg: A message explaining the problem.
         @ptype msg: C{unicode}
         """
-        self._stderr.write("%s: %s\n" % (filename, msg))
+        self._stderr.write(u("%s: %s\n") % (filename, msg))
 
     def syntaxError(self, filename, msg, lineno, offset, text):
         """
@@ -53,11 +56,11 @@ class Reporter(object):
         line = text.splitlines()[-1]
         if offset is not None:
             offset = offset - (len(text) - len(line))
-        self._stderr.write('%s:%d: %s\n' % (filename, lineno, msg))
-        self._stderr.write(line)
-        self._stderr.write('\n')
+        self._stderr.write(u('%s:%d: %s\n') % (filename, lineno, msg))
+        self._stderr.write(u(line))
+        self._stderr.write(u('\n'))
         if offset is not None:
-            self._stderr.write(" " * (offset + 1) + "^\n")
+            self._stderr.write(u(" " * (offset + 1) + "^\n"))
 
     def flake(self, message):
         """
@@ -65,8 +68,8 @@ class Reporter(object):
 
         @param: A L{pyflakes.messages.Message}.
         """
-        self._stdout.write(str(message))
-        self._stdout.write('\n')
+        self._stdout.write(u(message))
+        self._stdout.write(u('\n'))
 
 
 def _makeDefaultReporter():
