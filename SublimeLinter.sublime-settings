@@ -56,6 +56,18 @@
     ],
 
     /*
+        The regexp patterns used to exclude any particular file paths from
+        linting. The pattern can be as generic as \\.cpp$ to exclude all *.cpp
+        files or include part of the path, for example: foo/bar/*.
+        Use forward slashes when specifying paths. When escaping in the pattern,
+        use double escape as we need to take into account JSON file escaping in
+        strings.
+     */
+    "exclude_patterns":
+    [
+    ],
+
+    /*
         The minimum delay in seconds (fractional seconds are okay) before
         a linter is run when the "sublimelinter" setting is true. This allows
         you to have background linting active, but defer the actual linting

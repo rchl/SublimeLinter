@@ -65,6 +65,7 @@ ALL_SETTINGS = [
     'run',
     'delay',
     'disable',
+    'exclude_patterns',
     'executable_map',
     'fill_outlines',
     'gutter_marks',
@@ -664,6 +665,12 @@ def reload_settings(view):
             view_settings.set(setting, settings.get(setting))
         if view_settings.has('sublimelinter_%s' % setting):
             view_settings.set(setting, view_settings.get('sublimelinter_%s' % setting))
+
+    if view_settings.get('run') is True:
+        for pattern in view_settings.get('exclude_patterns'):
+            if re.search(pattern, view.file_name().replace('\\', '/')):
+                view_settings.set('run', False)
+                break
 
 
 class LintCommand(sublime_plugin.TextCommand):
